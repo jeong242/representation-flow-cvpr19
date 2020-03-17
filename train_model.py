@@ -9,11 +9,13 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-mode', type=str, help='rgb or flow')
-parser.add_argument('-exp_name', type=str)
+parser.add_argument('-exp_name', type=str, default='test')
 parser.add_argument('-batch_size', type=int, default=24)
 parser.add_argument('-length', type=int, default=16)
 parser.add_argument('-learnable', type=str, default='[0,0,0,0,0]')
 parser.add_argument('-niter', type=int)
+parser.add_argument('-system', type=str, default='minikinetics')
+parser.add_argument('-model', type=str, default='2d')
 
 args = parser.parse_args()
 
@@ -35,7 +37,7 @@ device = torch.device('cuda')
 ##################
 model = flow_2p1d_resnets.resnet50(pretrained=False, mode=args.mode, n_iter=args.niter, learnable=eval(args.learnable), num_classes=400)
     
-model = nn.DataParallel(model).to(device)
+# model = nn.DataParallel(model).to(device)
 batch_size = args.batch_size
 
 
@@ -124,8 +126,8 @@ lr_sched = optim.lr_scheduler.ReduceLROnPlateau(solver, patience=7)
 #################
 log_name = datetime.datetime.today().strftime('%m-%d-%H%M')+'-'+args.exp_name
 log_path = os.path.join('logs/',log_name)
-os.mkdir(log_path)
-os.system('cp * logs/'+log_name+'/')
+os.makedirs(log_path)
+# os.system('cp * logs/'+log_name+'/')
 
 # deal with hyper-params...
 with open(os.path.join(log_path,'params.json'), 'w') as out:
